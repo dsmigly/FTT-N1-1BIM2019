@@ -1,0 +1,207 @@
+<!DOCUMENT HTML>
+<HTML>
+
+<HEAD>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <!-- A biblioteca bundle já contem os arquivos JS do Bootstrap, Popper, e jQuery.
+    <script src="js/bootstrap.bundle.js"></script>-->
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <title>FTT EC LP2 N1!!</title>
+    <LINK REL="stylesheet" HREF="css/bootstrap.css" />
+    <STYLE>
+        .center-txt {
+            text-align: center;
+            color: black;
+            width: 90px;
+            padding: 4px;
+            margin:0;
+            border:0;
+        }
+        .button-selected {
+            background-color: #343a40;
+            color: white;
+            border-radius:5%;
+        }       
+        .width-button-bar {
+            height: 100px;
+            padding-top: 10px;
+        }
+        .icon-font {
+            font-size: 40px;   
+        }
+        main {
+            padding-top: 56px;
+            padding-bottom: 50px;
+        }
+    </STYLE>
+    <SCRIPT>
+
+
+
+    </SCRIPT>
+</HEAD>
+
+<BODY lang="pt-br">
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo03" aria-controls="navbarTogglerDemo03" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <a class="navbar-brand" href="#">&#x1F981; FTT EC LP2 N1!!!</a>
+
+        <div class="collapse navbar-collapse" id="navbarTogglerDemo03">
+            <div class="navbar-nav float-right text-right pr-3">
+                <a class="nav-item nav-link" href="index.html">Splash</a>
+                <a class="nav-item nav-link" href="http://www.fundacaosalvadorarena.org.br/" target="newpage">CEFSA</a>
+                <a class="nav-item nav-link" href="about.html">Sobre</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container" id="aluno">
+        <hr>
+        <h1><center><span class="badge badge-success">Encontre uma música!!!</span></center></h1>
+    </main>
+
+
+	<div>
+		<p>Utilizando uma API do site de músicas <a href='http://api.vagalume.com.br/docs/letras/'>Vagalume</a>, esta página encontra a letra de uma música 
+		a partir do nome do artista e do nome da música!</p>
+
+
+		<span style='color:green'>
+		       <p>
+            <label for="cep">Informe o artista e nome da música:</label>
+			</p>
+			
+			<p>
+			<label for="cep">Artista: </label>   <input type="text" maxlength="20" id="artista">
+			
+			<label for="cep">Música: </label>  <input type="text" maxlength="50" id="music">
+          </p>
+
+          <p>
+            <button id="submit" onclick="carr()">Pesquisar música!</button>
+          </p>
+
+
+		</span>
+
+
+		<!--<a target=_blank style='float:right;font-size:10px;color:#000;text-decoration:none;font-weight:bold' href="http://www.vagalume.com.br/"><img border=0 src="http://www.vagalume.com.br/images/logo_small2.jpg" alt="Vagalume"><br/>Letras de Músicas</a>-->
+		<center><div id='letra' style='width:400px;text-align:left'>
+			<pre class=text>Procurando letras... </pre>
+		</div></center>
+		<!--<a target=_blank id=vagalumeBrandBottom href="http://www.vagalume.com.br/search.php?t=art&q=Madonna">More about Madonna at Vagalume &raquo;</a>-->
+	</div>
+	
+	<div>
+	<p> <img width="50pt" border=0 src="vagalume.jpg" alt="Vagalume"> Douglas de Araujo Smigly - RA 081160008  </p>
+	<br>
+	<br>
+	<br>
+	<br>
+	<br>
+	
+	</div>
+	<script>
+		/* CÓDIGO USANDO VAGALUME API (Lyrics)
+
+		Copyright Vagalume Midia Ltda. All rights reserved.
+		*/
+		function showLetra (data,art,mus,arrayid) {
+			if (! arrayid) arrayid = 0;
+			if (data.type == 'exact' || data.type == 'aprox') {
+				// Print lyrics text
+				$('#letra .text').text(data.mus[arrayid].text);
+				// Show buttons to open original and portuguese translation
+				if (data.mus[arrayid].translate) {
+					$('#letra .text').prepend('<input type=button value="Portuguese &raquo;" onClick="$(document).trigger(\'translate\')"><br/>');
+					$(document).one('translate',function() {
+						$('#letra .text').text(data.mus[arrayid].translate[0].text);
+						$('#letra .text').prepend('<input type=button value="&laquo; Original" onClick="$(document).trigger(\'original\')"><br/>');
+						$(document).one('original',function() {
+							showLetra(data,art,mus,arrayid);
+						});
+					});
+				}
+				// Sem resultado (ex: U2 / Beautiful)
+				if (data.type == 'aprox' && !$('#aprox').is('div')) {
+					$('#letra').prepend('<div id=aprox>We found something similar<br/><span class=songname>"' + data.mus[arrayid].name + '"</span></div>');
+					// Se Vagalume encontrou mais do que um resultado
+					if (data.mus.length > 0) {
+						var html = '<select class=songselect>';
+						for (var i = 0; i < data.mus.length; i++) {
+							html += '<option value="'+i+'"'+(i==arrayid?' selected':'')+'>'+data.mus[i].name+'</option>';
+						}
+						html += '</select>';
+						$('#aprox span.songname').html(html);
+						$('#aprox select.songselect').change(function() {
+							var aID = $('option:selected',this).val();
+							showLetra (data,art,mus,aID);
+						});
+					}
+				}
+			} else if (data.type == 'song_notfound') {
+			// Música não encontrada, mas artista encontrado
+				$('#letra .text').html(
+					'Song "'+mus+'" from "'+art+'" was not found.<br/>'
+					+'<a target=_blank href="http://www.vagalume.com.br/add/lyrics.php">'
+					+'Add this song to Vagalume &raquo;</a>'
+				);
+			} else {
+				// Artista não encontrado
+				$('#letra .text').html(
+					'Song "'+mus+'" from "'+art+'" was not found<br/>'
+					+'(artist not found)<br/>'
+					+'<a target=_blank href="http://www.vagalume.com.br/add/lyrics.php">'
+					+'Add this song to Vagalume &raquo;</a>'
+				);
+			}
+		}
+		function fetchLetra (art,mus) {
+			var data = jQuery.data(document,art + mus); // cache read
+			if (data) {
+				showLetra(data, art, mus);
+				return true;
+			}
+			var url = "http://api.vagalume.com.br/search.php"
+				+"?art="+encodeURIComponent(art)
+				+"&mus="+encodeURIComponent(mus);
+			// Check if browser supports CORS - http://www.w3.org/TR/cors/
+			if (!jQuery.support.cors) {
+				url += "&callback=?";
+			}
+			jQuery.getJSON(url,function(data) {
+				// What we do with the data
+				jQuery.data(document,art + mus,data); // cache write
+				showLetra(data, art, mus);
+			});
+		}
+		function carr(){
+			artista = document.getElementById("artista").value;
+			music = document.getElementById("music").value;
+			fetchLetra(artista,music);
+			//fetchLetra($("#artista").text(),$("#music").text());
+		}
+	</script>
+    <nav class="navbar fixed-bottom navbar-light bg-light width-button-bar">
+        <div class="row w-100">
+            <div class="col-sm center-txt"><b onclick='window.location="tab01news.html"'>News<br><span class="icon-font">&#x1f4f0;</span></b>
+            </div>
+            <div class="col-sm center-txt"><b onclick='window.location="tab02map.html"'>Map<br><span class="icon-font">&#x1f4cc;&#xFE0E;</span></b>
+            </div>
+            <div class="col-sm center-txt"><b onclick='window.location="tab03todo.html"'>Todo<br><span class="icon-font">&#x1F4DD;</span></b>
+            </div>
+            <div class="col-sm center-txt button-selected"><b onclick='window.location="tab04project.html"'>Música<br><span class="icon-font">&#x1F981;</span></b>
+            </div>
+        </div>
+    </nav>
+</BODY>
+<!--<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+-->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
+
+</HTML>
